@@ -5,6 +5,9 @@ verify_ssl = true
 
 [packages]
 tensorflow = "*"
+gym = "*"
+matplotlib = "*"
+pygame = "*"
 
 [requires]
 python_version = "3.10.2"
