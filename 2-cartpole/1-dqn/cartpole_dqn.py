@@ -25,8 +25,8 @@ class DQNAgent:
         self.action_size = action_size
 
         # These are hyper parameters for the DQN
-        self.discount_factor = 0.99
-        self.learning_rate = 0.001
+        self.discount_factor = 0.99  # 割引率
+        self.learning_rate = 0.001  # 学習率
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
         self.epsilon_min = 0.01
@@ -36,6 +36,7 @@ class DQNAgent:
         self.memory = deque(maxlen=2000)
 
         # create main model and target model
+        # 何故modelを二つに分けた
         self.model = self.build_model()
         self.target_model = self.build_model()
 
@@ -64,6 +65,7 @@ class DQNAgent:
         self.target_model.set_weights(self.model.get_weights())
 
     # get action from model using epsilon-greedy policy
+    # epsilon-greedy policy　：　一定確率で無作為な行動を採用し方針を探索する
     def get_action(self, state):
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
@@ -74,11 +76,12 @@ class DQNAgent:
     # save sample <s,a,r,s'> to the replay memory
     def append_sample(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
-        if self.epsilon > self.epsilon_min:
+        if self.epsilon > self.epsilon_min:  # epsilon-greedy policyで探索率を減らす
             self.epsilon *= self.epsilon_decay
 
     # pick samples randomly from replay memory (with batch_size)
     def train_model(self):
+        # 1000個 sample が溜まったら64個取り出して学習するっぽい
         if len(self.memory) < self.train_start:
             return
         batch_size = min(self.batch_size, len(self.memory))
@@ -102,13 +105,13 @@ class DQNAgent:
             # Q Learning: get maximum Q value at s' from target model
             if done[i]:
                 target[i][action[i]] = reward[i]
-            else:
-                target[i][action[i]] = reward[i] + self.discount_factor * (
-                    np.amax(target_val[i]))
+            else:  # 割引率
+                target[i][action[i]] = reward[i] + self.discount_factor * (np.amax(target_val[i]))
 
         # and do the model fit!
-        self.model.fit(update_input, target, batch_size=self.batch_size,
-                       epochs=1, verbose=0)
+        # update_input: (64,4)状態
+        # target: (64,2)左右行動それぞれの報酬
+        self.model.fit(update_input, target, batch_size=self.batch_size, epochs=1, verbose=0)
 
 
 if __name__ == "__main__":
