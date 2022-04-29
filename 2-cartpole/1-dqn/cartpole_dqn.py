@@ -92,11 +92,11 @@ class DQNAgent:
         action, reward, done = [], [], []
 
         for i in range(self.batch_size):
-            update_input[i] = mini_batch[i][0]
-            action.append(mini_batch[i][1])
-            reward.append(mini_batch[i][2])
-            update_target[i] = mini_batch[i][3]
-            done.append(mini_batch[i][4])
+            update_input[i] = mini_batch[i][0]  # state
+            action.append(mini_batch[i][1])  # action
+            reward.append(mini_batch[i][2])  # reward
+            update_target[i] = mini_batch[i][3]  # next_state
+            done.append(mini_batch[i][4])  # done
 
         target = self.model.predict(update_input)
         target_val = self.target_model.predict(update_target)
